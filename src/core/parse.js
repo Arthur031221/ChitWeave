@@ -50,6 +50,63 @@ function hourOf(prefix, shown, suffix) {
   return shown <= 23 ? shown : null
 }
 
+// Some exports (seen on 2026-10-08 from a phone) separate the time, the sender
+// and the text with single spaces instead of tabs, and sender names may hold a
+// space themselves ("Name Surname"). When a file has no tab records at all,
+// find the two sender names that start the most records and rewrite those
+// lines into the tab layout, so the rules above apply unchanged. A line whose
+// text does not start with either name (a notice) keeps no sender.
+const SPACED = new RegExp(`^((?:上午|下午|午前|午後)?${GAP}\\d{1,2}:\\d{2}(?:${GAP}[AaPp][Mm])?) (.+)$`)
+
+function untangleSpaced(lines) {
+  if (lines.some((line) => TIME_LEAD.test(line))) return lines
+  const rests = []
+  for (const line of lines) {
+    const m = SPACED.exec(line)
+    if (m) rests.push(m[2])
+  }
+  if (rests.length === 0) return lines
+  const tally = new Map()
+  for (const rest of rests) {
+    const words = rest.split(' ')
+    for (let k = 1; k <= Math.min(4, words.length - 1); k += 1) {
+      const name = words.slice(0, k).join(' ')
+      tally.set(name, (tally.get(name) ?? 0) + 1)
+    }
+  }
+  // The most frequent prefix, then the longest extension of it that still
+  // starts most of the same records (notices such as "Name Surname已收回訊息"
+  // make the shorter prefix a little more frequent).
+  const pick = (exclude) => {
+    let best = null
+    for (const [name, n] of tally) {
+      if (exclude && (name === exclude || name.startsWith(exclude + ' ') || exclude.startsWith(name + ' '))) continue
+      if (!best || n > best[1] || (n === best[1] && name.length < best[0].length)) best = [name, n]
+    }
+    for (let grew = true; best && grew;) {
+      grew = false
+      for (const [name, n] of tally) {
+        if (name.startsWith(best[0] + ' ') && !name.slice(best[0].length + 1).includes(' ') && n >= 0.75 * best[1]) {
+          best = [name, n]
+          grew = true
+          break
+        }
+      }
+    }
+    return best
+  }
+  const first = pick(null)
+  if (!first) return lines
+  const second = pick(first[0])
+  const names = [first[0], second && second[1] >= 2 ? second[0] : null].filter(Boolean)
+  return lines.map((line) => {
+    const m = SPACED.exec(line)
+    if (!m) return line
+    const name = names.find((n) => m[2].startsWith(n + ' ') || m[2] === n)
+    return name ? `${m[1]}\t${name}\t${m[2].slice(name.length + 1)}` : `${m[1]}\t\t${m[2]}`
+  })
+}
+
 function quotes(text) {
   let n = 0
   for (let i = text.indexOf('"'); i !== -1; i = text.indexOf('"', i + 1)) n += 1
@@ -70,7 +127,7 @@ function isGroupHeader(line) {
  *   | {ok: false, error: string, senders?: number, issues: {line: number, code: string}[]}}
  */
 export function parseLine(text) {
-  const lines = text.replace(/^﻿/, '').split(/\r\n|\n|\r/)
+  const lines = untangleSpaced(text.replace(/^﻿/, '').split(/\r\n|\n|\r/))
   const issues = []
   let issueCount = 0
   const flag = (line, code) => {
