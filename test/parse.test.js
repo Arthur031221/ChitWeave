@@ -245,3 +245,22 @@ test('a line made of millions of tabs does not blow up', () => {
   const r = parseLine(`2026/10/01（四）\n09:00\tA\tx\n09:01\tB\ty\n09:02\tA\t${'\t'.repeat(3_000_000)}\n`)
   assert.equal(r.records, 3)
 })
+
+test('space separated export with a two word sender name', () => {
+  const text = [
+    '2026.09.06 星期日',
+    '13:23 Wei Arthur hello there',
+    '13:24 Wei Arthur sticker',
+    '21:12 Millie sounds good',
+    '21:13 Millie see you',
+    '2026.09.07 星期一',
+    '08:00 Wei Arthur morning',
+    '08:05 Wei Arthur已收回訊息',
+  ].join('\n')
+  const r = parseLine(text)
+  assert.equal(r.ok, true)
+  assert.deepEqual(r.senders.map((s) => [s.name, s.records]), [['Wei Arthur', 3], ['Millie', 2]])
+  assert.equal(r.start, '2026-09-06')
+  assert.equal(r.days, 2)
+  assert.equal(r.systemLines, 1)
+})
