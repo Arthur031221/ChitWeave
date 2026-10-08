@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ChitWeave">
+  <rect width="64" height="64" rx="14" fill="#f5eee3"/>
+  <rect x="9" y="16" width="46" height="11" rx="1.5" fill="#e4573d"/>
+  <rect x="9" y="38" width="46" height="11" rx="1.5" fill="#e4573d"/>
+  <rect x="17" y="8" width="11" height="48" rx="1.5" fill="#2c3a8c"/>
+  <rect x="38" y="8" width="11" height="48" rx="1.5" fill="#2c3a8c"/>
+  <rect x="17" y="16" width="11" height="11" fill="#e4573d"/>
+  <rect x="38" y="38" width="11" height="11" fill="#e4573d"/>
+</svg>

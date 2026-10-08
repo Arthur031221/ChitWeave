@@ -1,0 +1,41 @@
+{
+  "name": "chitweave",
+  "version": "0.1.0",
+  "description": "Turn a two-person LINE chat export into a woven keepsake picture. Runs in the browser, nothing is uploaded.",
+  "type": "module",
+  "bin": {
+    "chitweave": "bin/chitweave.js"
+  },
+  "files": [
+    "bin",
+    "src/core",
+    "src/app/strings.js",
+    "dist",
+    "fixtures",
+    "docs"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/parse.test.js test/aggregate.test.js test/layout.test.js test/svg.test.js test/palettes.test.js test/cli.test.js",
+    "test:e2e": "node --test --test-concurrency=1 test/e2e.test.js",
+    "fixtures": "node scripts/gen-fixtures.mjs",
+    "assets": "node scripts/make-assets.mjs",
+    "demo": "node scripts/record-demo.mjs",
+    "verify": "node scripts/verify.mjs"
+  },
+  "author": "Arthur031221",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arthur031221/ChitWeave.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@fontsource/instrument-serif": "^5.2.0",
+    "esbuild": "^0.28.2",
+    "playwright": "1.63.0"
+  },
+  "private": true
+}

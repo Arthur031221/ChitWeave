@@ -1,0 +1,38 @@
+name: Publish demo page
+
+# Hosts dist/index.html, so the weave opens on any phone with one tap.
+# Turn on Pages once (Settings, Pages, Source: GitHub Actions). It runs after CI
+# passes on main, so a first push that lands before Pages was switched on is
+# picked up by the next run. Until Pages is on, the job reports success without
+# publishing, so a fork stays green.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/configure-pages@v5
+      - run: mkdir site && cp dist/index.html site/index.html && cp -r fixtures site/fixtures
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
