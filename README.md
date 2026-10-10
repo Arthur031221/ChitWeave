@@ -154,3 +154,5 @@ Group chats. More export layouts. An installable offline version. A real Safari 
 LINE's export layout is documented by other people's analyzers, [chonyy/line-message-analyzer](https://github.com/chonyy/line-message-analyzer) and [EpochME/chatlab](https://github.com/EpochME/chatlab). I read their formats and wrote my own parser. The page headings use [Instrument Serif](THIRD_PARTY.md). ChitWeave isn't affiliated with LINE.
 
 MIT licensed. See [LICENSE](LICENSE).
+
+Assisted by Claude/Codex.
